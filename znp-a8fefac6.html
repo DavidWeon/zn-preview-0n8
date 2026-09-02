@@ -225,9 +225,9 @@
 <!-- SEARCH: 이름 입력 → 환자 페이지 -->
 <section class="searchsec">
   <h2 class="rv">Find<br>your <em>case</em></h2>
-  <p class="ssub rv">케이스 코드를 입력하면 비포 / 애프터가 열립니다</p>
+  <p class="ssub rv">차트번호를 입력하면 비포 / 애프터가 열립니다</p>
   <div class="bigsearch rv">
-    <input id="q" type="search" aria-label="케이스 검색" placeholder="케이스 코드 · 날짜 검색…" autocomplete="off" spellcheck="false">
+    <input id="q" type="search" aria-label="케이스 검색" placeholder="차트번호 입력 (끝 4자리만 입력해도 됩니다)" autocomplete="off" spellcheck="false">
     <button id="goq" title="검색" aria-label="검색">→</button>
   </div>
   <div id="sug"></div>
@@ -389,19 +389,19 @@ const CASES = [
     video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/45f563de-62dd-4493-8e32-15bd1fba2a06.mp4"
   },
   {
-    name: "N1", date: "2026-08-13", tag: "전환형 10초 · 활짝",
+    name: "0225BSB", date: "2026-08-13", tag: "전환형 10초 · 활짝",
     before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d2f03aad-201e-4feb-ba43-4f15e621284c.jpg",
     thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_d478226e-194f-43ed-89ca-a0d165161b28.png",
     video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/bd90a6f3-6005-497c-905b-528c6a26a49d.mp4"
   },
   {
-    name: "N2", date: "2026-08-13", tag: "전환형 10초 · 활짝",
+    name: "9233YCR", date: "2026-08-13", tag: "전환형 10초 · 활짝",
     before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/211c6afb-33a7-4d1f-b0be-4f04b3ff61ff.jpg",
     thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_dd067268-ad9e-4dcc-8290-57654851120b.png",
     video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/0cc7361c-3942-4a6d-959b-7ed8b0c55396.mp4"
   },
   {
-    name: "N3", date: "2026-08-13", tag: "전환형 10초 · 활짝",
+    name: "6360JAS", date: "2026-08-13", tag: "전환형 10초 · 활짝",
     before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/750d1b3a-c089-4be1-852f-e3a74c2c1444.jpg",
     thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_6d80353d-8033-4651-afcc-b15600d79cbc.png",
     video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/3f59f418-0a12-45a4-96f1-309a3eac923e.mp4"
@@ -970,6 +970,23 @@ const OPS_PROCESSING = [{name:"2222TST", note:"약 12분 소요"}];
     document.body.appendChild(chip);
     setTimeout(() => location.reload(), 60000);
   }
+})();
+</script>
+<script>
+/* ── 차트번호 검색 (게시용 · additive): 숫자만 입력하면 끝 4자리로 코드 앞부분을 맞춘다.
+   전체 차트번호(예 27395)나 끝 4자리(7395) 모두 허용. 숫자 검색은 날짜·태그와 맞추지 않는다.
+   문자 입력은 기존 방식(코드·태그·날짜 부분 일치) 그대로. ── */
+(function(){
+  var _match = match;
+  match = function(c, kw){
+    if(!kw) return true;
+    var k = String(kw).trim();
+    if(/^\d+$/.test(k)){
+      var last4 = k.length > 4 ? k.slice(-4) : k;
+      return String(c.name || '').toUpperCase().indexOf(last4) === 0;
+    }
+    return _match(c, k.toLowerCase());
+  };
 })();
 </script>
 </body></html>

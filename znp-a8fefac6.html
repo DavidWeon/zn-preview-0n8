@@ -292,120 +292,406 @@ const WHEEL_IMGS=[
 <script>
 // ── 상담 케이스 데이터 (클로드가 배치마다 갱신 · 최신이 맨 앞) ─────────────
 const CASES = [
-  {
-    name: "1111TST", date: "2026-09-01", tag: "전환형 5초 · 형태·색상·공간 · 치아 스타일 10안 · 말하기 샘플",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/b2698507-9de9-49ae-bc7d-f48be683d62b.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_28c83807-bdd3-4877-96cf-8e184e6a2e64.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/248133bf-c906-4f87-9df3-c1f88e30829f.mp4",  // ★베스트 = v4 5초 조기전환 faststart (핀 4.87 / 7.00, Fable 재생성)
-    talk:   "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/02d0a6ba-2946-48ca-b3c9-e9fcfb8eb919.mp4",  // 말하기 v2 faststart (발화 0.6초 · 끝 핀 7.40 — 자동 1× 재생)
-    mouth: [0.10, 0.42, 0.90, 0.72],
-    maskBlur: 0.0045,
-    // 치아 마스크 폴리곤 (마스크 v3 링 방식, 원본+10안 union 11/11, 13차)
-    maskPoly: [[0.3037,0.518],[0.3419,0.5077],[0.381,0.5049],[0.4192,0.5011],[0.4583,0.4939],[0.4964,0.4907],[0.5355,0.4927],[0.5737,0.4953],[0.6128,0.5005],[0.651,0.5019],[0.6901,0.507],[0.6901,0.5406],[0.651,0.5563],[0.6128,0.5493],[0.5737,0.5743],[0.5355,0.5831],[0.4964,0.5871],[0.4583,0.5879],[0.4192,0.5692],[0.381,0.5684],[0.3419,0.5446],[0.3037,0.5306]],
-    presets: [
-      {id:"P1", label:"BL1 · 소프트스퀘어", desc:"가장 밝게 · 표준 형태", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_9928cc79-376d-42cd-b9e6-98094fa9dba9.png"},
-      {id:"P2", label:"BL3 · 소프트스퀘어", desc:"차분한 명도 · 웜톤", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_dda23bf0-acb5-4503-a557-98499ccb6bb0.png"},
-      {id:"P3", label:"BL2 · 오벌 성향", desc:"라운드 엣지 · 부드러운 인상", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_814d8763-0c45-40d6-b55e-0941602a2acd.png"},
-      {id:"P4", label:"BL1 · 오벌 성향", desc:"밝게 · 라운드 엣지", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_8f6609eb-b483-47f7-bc2f-e25d0b6755cc.png"},
-      {id:"P5", label:"BL2 · 투명감 강조", desc:"절단연 반투명 힌트", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_c11521f5-210b-43f3-863f-451892aea162.png"},
-      {id:"P6", label:"BL2 · 길이감 ↑", desc:"절단연 소폭 연장", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083343_490a257c-c233-49f1-8cac-8e1a933ed9d9.png"},
-      {id:"P7", label:"BL2 · 스마일아크 강조", desc:"중절치 우위 · 아크 곡선 (★ 선정)", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_28c83807-bdd3-4877-96cf-8e184e6a2e64.png"},
-      {id:"P8", label:"BL2 · 라운드 엣지", desc:"스퀘어·오벌 중간", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_5f84382c-29a3-415b-ab4c-3562887ae223.png"},
-      {id:"P9", label:"BL1 · 투명감 강조", desc:"밝게 · 반투명 쿨톤", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_2e21a2c0-a7f9-4bd9-a573-743437ef43b9.png"},
-      {id:"P10", label:"BL3 · 오벌 성향", desc:"차분한 명도 · 라운드 엣지", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260901_083342_9291e84a-deb3-4be6-9cdb-ae8d3d40c2e8.png"}
-    ]
-  },
-  {
-    name: "1402YBJ", date: "2026-08-19", tag: "전환형 5초 · 색상·마모 · 치아 스타일 11안 · 말하기 샘플",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/82ca3803-d8d6-48dd-815b-f8ce0de8f595.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_b9d8e585-ac20-4827-928b-01434c44198c.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/6c803b0e-d8d9-4ff1-9ade-abcb2b63bc3b.mp4",  // ★베스트 = v4 5초 조기전환 (구 10초 A=26a71b0e)
-    talk:   "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d363571c-9b6e-4b6e-bfba-a8d345b7d419.mp4",  // 말하기 연출 샘플 (정상속도 재생, 실험 트랙)
-    mouth: [0, 0.51, 0.99, 0.88],  // 입가 크롭 비율 (8차 기록) — 프리셋 썸네일용
-    // 치아 마스크 폴리곤 (9차 후속: 원본+10안 union 치아 검출 → 프로파일 스무딩, 정규화 좌표)
-    // 뷰어가 이 영역만 프리셋에서 가져와 원본 위에 실시간 합성 → 치아 외 얼굴은 원본 픽셀 100% 고정
-    maskBlur: 0.0045,
-    maskPoly: [[0.229,0.561],[0.237,0.561],[0.254,0.62],[0.271,0.585],[0.355,0.585],[0.372,0.585],[0.389,0.585],[0.406,0.585],[0.423,0.585],[0.44,0.585],[0.457,0.585],[0.474,0.576],[0.491,0.576],[0.508,0.576],[0.525,0.617],[0.542,0.617],[0.559,0.617],[0.576,0.589],[0.592,0.589],[0.609,0.589],[0.626,0.618],[0.643,0.688],[0.66,0.688],[0.677,0.688],[0.711,0.656],[0.728,0.605],[0.745,0.604],[0.762,0.603],[0.77,0.603],[0.77,0.788],[0.762,0.788],[0.745,0.788],[0.728,0.788],[0.711,0.788],[0.677,0.732],[0.66,0.73],[0.643,0.73],[0.626,0.732],[0.609,0.736],[0.592,0.74],[0.576,0.746],[0.559,0.747],[0.542,0.748],[0.525,0.757],[0.508,0.759],[0.491,0.759],[0.474,0.759],[0.457,0.756],[0.44,0.754],[0.423,0.741],[0.406,0.74],[0.389,0.737],[0.372,0.74],[0.355,0.741],[0.271,0.788],[0.254,0.788],[0.237,0.788],[0.229,0.788]],
-    // 치아 스타일 프리셋 v1 (9차, 2026-08-20) — 전원 자동 심사 통과 (identity_top 0.95~1.58 ≤8, 잇몸 증가 없음)
-    presets: [
-      {id:"P1",  label:"BL1 · 소프트스퀘어",   desc:"가장 밝게 · 표준 형태",       url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_6c31ebf0-e175-4f7e-8166-d019428c9f64.png"},
-      {id:"P2",  label:"BL3 · 소프트스퀘어",   desc:"차분한 명도 · 웜톤",          url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_59de4bcc-7ae4-470f-b560-75cab446ef2b.png"},
-      {id:"P3",  label:"BL2 · 오벌 성향",      desc:"라운드 엣지 · 부드러운 인상", url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_854ccaa1-b57c-484a-bbb3-56684f849c5a.png"},
-      {id:"P4",  label:"BL1 · 오벌 성향",      desc:"밝게 · 라운드 엣지",          url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_fbed9e9a-9d5e-42e9-a39f-11a81d108f09.png"},
-      {id:"P5",  label:"BL2 · 투명감 강조",    desc:"절단연 반투명 힌트",          url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_ce1d8555-9814-4785-a4c8-00de5edd6bfc.png"},
-      {id:"P6",  label:"BL2 · 길이감 ↑",       desc:"절단연 소폭 연장",            url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_a608f9e6-c825-4a78-96f1-f0c16771376a.png"},
-      {id:"P7",  label:"BL2 · 스마일아크 강조", desc:"중절치 우위 · 아크 곡선",     url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_ac7f22fe-0e3e-493a-9104-a85859672b24.png"},
-      {id:"P8",  label:"BL2 · 라운드 엣지",    desc:"스퀘어·오벌 중간",            url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_5db4c7f5-a4fb-486c-9dc8-3460bb10a4e9.png"},
-      {id:"P9",  label:"BL1 · 투명감 강조",    desc:"밝게 · 반투명 쿨톤",          url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_1dd595e7-24f6-4d6f-845c-16a33ef454db.png"},
-      {id:"P10", label:"BL3 · 오벌 성향",      desc:"차분한 웜톤 · 라운드",        url:"https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_3fe86b98-9df6-4bf9-a22d-56fe3f6e4a61.png"}
-    ]
-  },
-  {
-    name: "9110EBL", date: "2026-08-19", tag: "전환형 10초 · 심미 개선 · 셀렉 대기",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/fecd9234-e593-44bc-a605-863a795ae854.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_ac01969d-cee0-4049-ac31-ee88afc76b60.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/c8f5ada2-dea1-4254-972d-7baa8cbb2498.mp4"
-  },
-  {
-    name: "3370KMJ", date: "2026-08-19", tag: "전환형 10초 · 배열·색상 · 셀렉 대기",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/ffb4b279-2f05-453a-9e3c-027d43632e47.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_ee4bf1db-5fb1-410f-abc7-e59f9837d7ea.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/6707fa8c-7c08-4fd0-ba09-95db5ee6b2c2.mp4"
-  },
-  {
-    name: "2689HYJ", date: "2026-08-19", tag: "전환형 10초 · 미소 확대 · 셀렉 대기",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/5de40327-1b1d-452c-b69c-4a8d86237568.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023903_8ca7978a-d116-4364-b9cd-14b1fb4fda31.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/e63c737a-760c-442a-8014-13afac7a7f48.mp4"
-  },
-  {
-    name: "7395BHJ", date: "2026-08-13", tag: "전환형 10초 · 배열·색상",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/969ba11c-d9fa-48d7-a2e1-f441f55c9cd4.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072614_45d02525-25e7-4123-8c48-e356fd469025.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/01aab9f0-0c06-4170-b12c-d31e8ca17745.mp4"
-  },
-  {
-    name: "0521JL", date: "2026-08-13", tag: "전환형 10초 · 심미 개선",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/a4b18759-b0f0-4457-aaf6-5a971f8012ba.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_92ba8b1d-3710-40fb-8530-44c5d8580af2.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/f9a31c17-8652-420a-b6be-236acf11ca6e.mp4"
-  },
-  {
-    name: "1250ASY", date: "2026-08-13", tag: "전환형 10초 · 미소 확대",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/fd48611e-7eb8-440d-a8ab-d6fa5566de67.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_285a3cc9-defe-45eb-a57b-198766d24ea2.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/2a133faa-99ad-4af7-be23-d39221414775.mp4"
-  },
-  {
-    name: "3549JIS", date: "2026-08-13", tag: "전환형 10초 · 절단연·색상",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/bac9afc1-5a9e-433a-98a5-15bbe374dbe2.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_305b71bb-6bf0-4b3e-86c6-bddd64fb0929.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/a3f28e3f-df5c-4bdd-b60d-d9b0a39bceb5.mp4"
-  },
-  {
-    name: "8572CJW", date: "2026-08-13", tag: "전환형 10초 · 색상·배열",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d95a279e-af3b-4e1b-9d6c-08996b547aba.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072649_787e5492-f5f0-42ff-8db5-9794f9275f33.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/45f563de-62dd-4493-8e32-15bd1fba2a06.mp4"
-  },
-  {
-    name: "0225BSB", date: "2026-08-13", tag: "전환형 10초 · 활짝",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d2f03aad-201e-4feb-ba43-4f15e621284c.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_d478226e-194f-43ed-89ca-a0d165161b28.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/bd90a6f3-6005-497c-905b-528c6a26a49d.mp4"
-  },
-  {
-    name: "9233YCR", date: "2026-08-13", tag: "전환형 10초 · 활짝",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/211c6afb-33a7-4d1f-b0be-4f04b3ff61ff.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_dd067268-ad9e-4dcc-8290-57654851120b.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/0cc7361c-3942-4a6d-959b-7ed8b0c55396.mp4"
-  },
-  {
-    name: "6360JAS", date: "2026-08-13", tag: "전환형 10초 · 활짝",
-    before: "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/750d1b3a-c089-4be1-852f-e3a74c2c1444.jpg",
-    thumb:  "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_6d80353d-8033-4651-afcc-b15600d79cbc.png",
-    video:  "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/3f59f418-0a12-45a4-96f1-309a3eac923e.mp4"
-  }
+ {
+  "name": "1402YBJ",
+  "date": "2026-08-19",
+  "tag": "전환형 5초 · 색상·마모 · 치아 스타일 11안 · 말하기 샘플",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/82ca3803-d8d6-48dd-815b-f8ce0de8f595.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_b9d8e585-ac20-4827-928b-01434c44198c.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/6c803b0e-d8d9-4ff1-9ade-abcb2b63bc3b.mp4",
+  "talk": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d363571c-9b6e-4b6e-bfba-a8d345b7d419.mp4",
+  "mouth": [
+   0,
+   0.51,
+   0.99,
+   0.88
+  ],
+  "maskBlur": 0.0045,
+  "maskPoly": [
+   [
+    0.229,
+    0.561
+   ],
+   [
+    0.237,
+    0.561
+   ],
+   [
+    0.254,
+    0.62
+   ],
+   [
+    0.271,
+    0.585
+   ],
+   [
+    0.355,
+    0.585
+   ],
+   [
+    0.372,
+    0.585
+   ],
+   [
+    0.389,
+    0.585
+   ],
+   [
+    0.406,
+    0.585
+   ],
+   [
+    0.423,
+    0.585
+   ],
+   [
+    0.44,
+    0.585
+   ],
+   [
+    0.457,
+    0.585
+   ],
+   [
+    0.474,
+    0.576
+   ],
+   [
+    0.491,
+    0.576
+   ],
+   [
+    0.508,
+    0.576
+   ],
+   [
+    0.525,
+    0.617
+   ],
+   [
+    0.542,
+    0.617
+   ],
+   [
+    0.559,
+    0.617
+   ],
+   [
+    0.576,
+    0.589
+   ],
+   [
+    0.592,
+    0.589
+   ],
+   [
+    0.609,
+    0.589
+   ],
+   [
+    0.626,
+    0.618
+   ],
+   [
+    0.643,
+    0.688
+   ],
+   [
+    0.66,
+    0.688
+   ],
+   [
+    0.677,
+    0.688
+   ],
+   [
+    0.711,
+    0.656
+   ],
+   [
+    0.728,
+    0.605
+   ],
+   [
+    0.745,
+    0.604
+   ],
+   [
+    0.762,
+    0.603
+   ],
+   [
+    0.77,
+    0.603
+   ],
+   [
+    0.77,
+    0.788
+   ],
+   [
+    0.762,
+    0.788
+   ],
+   [
+    0.745,
+    0.788
+   ],
+   [
+    0.728,
+    0.788
+   ],
+   [
+    0.711,
+    0.788
+   ],
+   [
+    0.677,
+    0.732
+   ],
+   [
+    0.66,
+    0.73
+   ],
+   [
+    0.643,
+    0.73
+   ],
+   [
+    0.626,
+    0.732
+   ],
+   [
+    0.609,
+    0.736
+   ],
+   [
+    0.592,
+    0.74
+   ],
+   [
+    0.576,
+    0.746
+   ],
+   [
+    0.559,
+    0.747
+   ],
+   [
+    0.542,
+    0.748
+   ],
+   [
+    0.525,
+    0.757
+   ],
+   [
+    0.508,
+    0.759
+   ],
+   [
+    0.491,
+    0.759
+   ],
+   [
+    0.474,
+    0.759
+   ],
+   [
+    0.457,
+    0.756
+   ],
+   [
+    0.44,
+    0.754
+   ],
+   [
+    0.423,
+    0.741
+   ],
+   [
+    0.406,
+    0.74
+   ],
+   [
+    0.389,
+    0.737
+   ],
+   [
+    0.372,
+    0.74
+   ],
+   [
+    0.355,
+    0.741
+   ],
+   [
+    0.271,
+    0.788
+   ],
+   [
+    0.254,
+    0.788
+   ],
+   [
+    0.237,
+    0.788
+   ],
+   [
+    0.229,
+    0.788
+   ]
+  ],
+  "presets": [
+   {
+    "id": "P1",
+    "label": "BL1 · 소프트스퀘어",
+    "desc": "가장 밝게 · 표준 형태",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_6c31ebf0-e175-4f7e-8166-d019428c9f64.png"
+   },
+   {
+    "id": "P2",
+    "label": "BL3 · 소프트스퀘어",
+    "desc": "차분한 명도 · 웜톤",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_59de4bcc-7ae4-470f-b560-75cab446ef2b.png"
+   },
+   {
+    "id": "P3",
+    "label": "BL2 · 오벌 성향",
+    "desc": "라운드 엣지 · 부드러운 인상",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_854ccaa1-b57c-484a-bbb3-56684f849c5a.png"
+   },
+   {
+    "id": "P4",
+    "label": "BL1 · 오벌 성향",
+    "desc": "밝게 · 라운드 엣지",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_fbed9e9a-9d5e-42e9-a39f-11a81d108f09.png"
+   },
+   {
+    "id": "P5",
+    "label": "BL2 · 투명감 강조",
+    "desc": "절단연 반투명 힌트",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_ce1d8555-9814-4785-a4c8-00de5edd6bfc.png"
+   },
+   {
+    "id": "P6",
+    "label": "BL2 · 길이감 ↑",
+    "desc": "절단연 소폭 연장",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_a608f9e6-c825-4a78-96f1-f0c16771376a.png"
+   },
+   {
+    "id": "P7",
+    "label": "BL2 · 스마일아크 강조",
+    "desc": "중절치 우위 · 아크 곡선",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_ac7f22fe-0e3e-493a-9104-a85859672b24.png"
+   },
+   {
+    "id": "P8",
+    "label": "BL2 · 라운드 엣지",
+    "desc": "스퀘어·오벌 중간",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_5db4c7f5-a4fb-486c-9dc8-3460bb10a4e9.png"
+   },
+   {
+    "id": "P9",
+    "label": "BL1 · 투명감 강조",
+    "desc": "밝게 · 반투명 쿨톤",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033440_1dd595e7-24f6-4d6f-845c-16a33ef454db.png"
+   },
+   {
+    "id": "P10",
+    "label": "BL3 · 오벌 성향",
+    "desc": "차분한 웜톤 · 라운드",
+    "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260820_033441_3fe86b98-9df6-4bf9-a22d-56fe3f6e4a61.png"
+   }
+  ]
+ },
+ {
+  "name": "9110EBL",
+  "date": "2026-08-19",
+  "tag": "전환형 10초 · 심미 개선 · 셀렉 대기",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/fecd9234-e593-44bc-a605-863a795ae854.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_ac01969d-cee0-4049-ac31-ee88afc76b60.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/c8f5ada2-dea1-4254-972d-7baa8cbb2498.mp4"
+ },
+ {
+  "name": "3370KMJ",
+  "date": "2026-08-19",
+  "tag": "전환형 10초 · 배열·색상 · 셀렉 대기",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/ffb4b279-2f05-453a-9e3c-027d43632e47.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023834_ee4bf1db-5fb1-410f-abc7-e59f9837d7ea.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/6707fa8c-7c08-4fd0-ba09-95db5ee6b2c2.mp4"
+ },
+ {
+  "name": "2689HYJ",
+  "date": "2026-08-19",
+  "tag": "전환형 10초 · 미소 확대 · 셀렉 대기",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/5de40327-1b1d-452c-b69c-4a8d86237568.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260819_023903_8ca7978a-d116-4364-b9cd-14b1fb4fda31.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/e63c737a-760c-442a-8014-13afac7a7f48.mp4"
+ },
+ {
+  "name": "7395BHJ",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 배열·색상",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/969ba11c-d9fa-48d7-a2e1-f441f55c9cd4.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072614_45d02525-25e7-4123-8c48-e356fd469025.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/01aab9f0-0c06-4170-b12c-d31e8ca17745.mp4"
+ },
+ {
+  "name": "0521JL",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 심미 개선",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/a4b18759-b0f0-4457-aaf6-5a971f8012ba.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_92ba8b1d-3710-40fb-8530-44c5d8580af2.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/f9a31c17-8652-420a-b6be-236acf11ca6e.mp4"
+ },
+ {
+  "name": "1250ASY",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 미소 확대",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/fd48611e-7eb8-440d-a8ab-d6fa5566de67.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_285a3cc9-defe-45eb-a57b-198766d24ea2.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/2a133faa-99ad-4af7-be23-d39221414775.mp4"
+ },
+ {
+  "name": "3549JIS",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 절단연·색상",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/bac9afc1-5a9e-433a-98a5-15bbe374dbe2.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072613_305b71bb-6bf0-4b3e-86c6-bddd64fb0929.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/a3f28e3f-df5c-4bdd-b60d-d9b0a39bceb5.mp4"
+ },
+ {
+  "name": "8572CJW",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 색상·배열",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d95a279e-af3b-4e1b-9d6c-08996b547aba.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_072649_787e5492-f5f0-42ff-8db5-9794f9275f33.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/45f563de-62dd-4493-8e32-15bd1fba2a06.mp4"
+ },
+ {
+  "name": "0225BSB",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 활짝",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/d2f03aad-201e-4feb-ba43-4f15e621284c.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_d478226e-194f-43ed-89ca-a0d165161b28.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/bd90a6f3-6005-497c-905b-528c6a26a49d.mp4"
+ },
+ {
+  "name": "9233YCR",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 활짝",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/211c6afb-33a7-4d1f-b0be-4f04b3ff61ff.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_dd067268-ad9e-4dcc-8290-57654851120b.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/0cc7361c-3942-4a6d-959b-7ed8b0c55396.mp4"
+ },
+ {
+  "name": "6360JAS",
+  "date": "2026-08-13",
+  "tag": "전환형 10초 · 활짝",
+  "before": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/750d1b3a-c089-4be1-852f-e3a74c2c1444.jpg",
+  "thumb": "https://d8j0ntlcm91z4.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/hf_20260813_015618_6d80353d-8033-4651-afcc-b15600d79cbc.png",
+  "video": "https://d2ol7oe51mr4n9.cloudfront.net/user_3AkMdJljUj7kwqHtj7WWWh5w8zI/3f59f418-0a12-45a4-96f1-309a3eac923e.mp4"
+ }
 ];
 
 // ── 셀럽 프리셋 (상담 시 시연용 · 소스 수령 후 클로드가 추가) ────────────────
@@ -898,7 +1184,7 @@ attachZoom(document.getElementById('afterhalf'), compCv); // 합성 캔버스에
       항목 구조: { name:"코드", note:"약 12분 소요" }
    2) CASES 항목에 talk 필드(faststart mp4 URL)가 있으면 사이드바 ★베스트 바로 아래에
       "말하기 미리보기" 카드가 생기고, 클릭 시 배속 보정을 무시하고 항상 1배속 재생. */
-const OPS_PROCESSING = [{name:"2222TST", note:"약 12분 소요"}];
+const OPS_PROCESSING = [{"name": "2222TST", "note": "약 12분 소요"}];
 
 (function(){
   /* ── 1. 말하기 미리보기 카드 ── */

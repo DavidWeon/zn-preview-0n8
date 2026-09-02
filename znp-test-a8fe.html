@@ -2161,12 +2161,36 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     CURP = p;
     _dc(c, p, ok => { if(ok) applyShade(c); done(ok); });
   };
-  /* 픽셀 읽기(getImageData) 없이 블렌드로 보정 — CDN 이미지가 CORS 없이 그려져 캔버스가 tainted 되어도 동작 */
-  const SHADECV = document.createElement('canvas');
+  /* 셰이드 마스크 = 폴리곤 안에서 "치아 픽셀"만 (밝고 채도 낮음). 폴리곤 전체(입술·잇몸 포함)에 얹지 않는다.
+     CDN이 CORS를 허용해 픽셀 읽기가 되며, 실패 시 폴리곤으로 폴백. 이미지별 캐시. */
+  const SHADECV = document.createElement('canvas'); const TEETHCV = document.createElement('canvas'); const TEETHCACHE = {};
+  function teethMask(c, p, W, H){
+    const key = (p && p.url) || 'best'; if(TEETHCACHE[key] && TEETHCACHE[key].width === W) return TEETHCACHE[key];
+    const poly = drawMask(c, W, H);                       // 폴리곤(블러) 알파
+    const src = IMGC[key] || IMGC[c.thumb];
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+    try{
+      TEETHCV.width = W; TEETHCV.height = H; const t = TEETHCV.getContext('2d'); t.drawImage(src, 0, 0, W, H);
+      const img = t.getImageData(0, 0, W, H).data, pm = poly.getContext('2d').getImageData(0, 0, W, H).data;
+      const out = g.createImageData(W, H), o = out.data;
+      for(let i = 0; i < img.length; i += 4){
+        const a = pm[i + 3]; if(!a){ continue; }
+        const r = img[i], gg = img[i + 1], b = img[i + 2]; const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+        const lum = (r + gg + b) / 3, sat = mx ? (mx - mn) / mx : 0;
+        // 치아: 밝고(>125) 채도 낮음(<0.42), 입술·잇몸(붉음 r-b 큼) 제외 — 경계는 부드럽게
+        let s = Math.min(1, Math.max(0, (lum - 115) / 40)) * Math.min(1, Math.max(0, (0.48 - sat) / 0.14)) * Math.min(1, Math.max(0, (95 - (r - b)) / 40));
+        o[i] = o[i + 1] = o[i + 2] = 255; o[i + 3] = Math.round(255 * s * (a / 255));
+      }
+      g.putImageData(out, 0, 0);
+      const blur = document.createElement('canvas'); blur.width = W; blur.height = H; const bg = blur.getContext('2d');
+      bg.filter = 'blur(' + Math.max(1, Math.round(W * 0.0015)) + 'px)'; bg.drawImage(cv, 0, 0); bg.filter = 'none';
+      TEETHCACHE[key] = blur; return blur;
+    } catch(e){ return poly; }                            // tainted 등 → 폴리곤 폴백
+  }
   function applyShade(c){
     const sh = SHADES.find(s => s.id === CURSHADE); if(!sh || !c.maskPoly) return;
     const W = compCv.width, H = compCv.height, g = compCv.getContext('2d');
-    const mask = drawMask(c, W, H);
+    const mask = teethMask(c, CURP, W, H);
     SHADECV.width = W; SHADECV.height = H; const t = SHADECV.getContext('2d');
     function layer(mode, color){
       t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, W, H); t.fillStyle = color; t.fillRect(0, 0, W, H);

@@ -2307,10 +2307,31 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     resetZooms(); ncv.classList.add('on'); fitCanvas();
   }
   function exitNote(){ if(!NOTE) return; NOTE = false; drawing = false; ncv.classList.remove('on'); const b = $('nbtn'); if(b) b.classList.remove('on'); const s = $('nsub'); if(s) s.style.display = 'none'; }
-  ncv.addEventListener('pointerdown', e => { if(!NOTE) return; e.preventDefault(); ncv.setPointerCapture(e.pointerId); drawing = true; const r = ncv.getBoundingClientRect(); cur = {c:COLOR, w:WIDTH, e:ERASE, p:[[(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]]}; strokes().push(cur); });
-  ncv.addEventListener('pointermove', e => { if(!drawing || !cur) return; const r = ncv.getBoundingClientRect(); cur.p.push([(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]); redraw(); });
-  const up = () => { if(!drawing) return; drawing = false; cur = null; if(CUR){ rec(CUR.name).updated = new Date().toISOString(); } save(); };
-  ncv.addEventListener('pointerup', up); ncv.addEventListener('pointercancel', up);
+  /* 입력 규칙(2026-09-03 대표님 요청): 펜은 버튼을 누르고 있는 동안만 그린다(떼면 즉시 멈춤). 화면 이동은 PC = 휠 클릭(가운데 버튼) 드래그,
+     태블릿 = 손가락 두 개. 한 손가락·왼쪽 버튼으로는 노트 중에 화면이 움직이지 않는다.
+     구현: pointerdown 은 스테이지(원본 줌 코드)로도 전달해 포인터 수를 알게 하되, 그리는 동안의 pointermove 는 window 캡처 단계에서 가로채
+     스테이지의 한 손가락 팬을 막는다. 두 번째 손가락이 닿으면 진행 중인 획을 취소하고 스테이지의 두 손가락 팬·핀치에 맡긴다. */
+  let drawId = null; const active = new Set();
+  function endStroke(){ if(!drawing) return; drawing = false; drawId = null; cur = null; if(CUR){ rec(CUR.name).updated = new Date().toISOString(); } save(); }
+  function cancelStroke(){ if(!drawing) return; const s = strokes(); if(cur && s[s.length - 1] === cur) s.pop(); drawing = false; drawId = null; cur = null; redraw(); }
+  ncv.addEventListener('pointerdown', e => {
+    if(!NOTE) return; active.add(e.pointerId);
+    if(e.pointerType === 'mouse' && e.button === 1){ e.preventDefault(); return; }          /* 휠 클릭: 그리지 않고 스테이지 팬에 맡김 */
+    if(active.size >= 2){ cancelStroke(); return; }                                          /* 두 손가락: 획 취소 → 스테이지 팬·핀치 */
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    drawing = true; drawId = e.pointerId; const r = ncv.getBoundingClientRect();
+    cur = {c:COLOR, w:WIDTH, e:ERASE, p:[[(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]]}; strokes().push(cur);
+  });
+  window.addEventListener('pointermove', e => {
+    if(!drawing || !cur || e.pointerId !== drawId) return;
+    if(e.pointerType === 'mouse' && !(e.buttons & 1)){ endStroke(); return; }                /* 버튼을 뗐으면 멈춤 */
+    e.stopPropagation(); const r = ncv.getBoundingClientRect();
+    cur.p.push([(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]); redraw();
+  }, true);
+  const up = e => { active.delete(e.pointerId); if(e.pointerId === drawId) endStroke(); };
+  window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', up, true);
+  ncv.addEventListener('contextmenu', e => e.preventDefault());
+  ncv.addEventListener('auxclick', e => e.preventDefault());
   window.undo = () => { const s = strokes(); s.pop(); redraw(); save(); };
   window.clearView = () => { if(!CUR) return; rec(CUR.name).views[VIEW] = {strokes:[]}; redraw(); save(); };
   window.addEventListener('resize', () => { if(NOTE) fitCanvas(); });

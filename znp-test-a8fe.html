@@ -2138,11 +2138,16 @@ body:has(#viewer.on) #ops-chip{z-index:5}
       const nm = card.querySelector('.nm'); if(!nm) return;
       const c = CASES.find(x => x.name === nm.textContent); if(!c) return;
       if(!c.video && !card.querySelector('.stage')){ const b = document.createElement('span'); b.className = 'stage'; b.textContent = '영상 제작 중 · 이미지 먼저'; card.appendChild(b); }
+      const lb = codeLabel(c.name); if(lb !== c.name && !nm.dataset.code){ nm.dataset.code = c.name; nm.textContent = lb; }
     });
   };
+  /* 생년월일 코드(해외 상담회, 2026-09-03): YYMMDD+이니셜 → 카드·뷰어 제목을 "YY.MM.DD · 이니셜" 로 표시. 차트 코드(4자리+이니셜)는 그대로 */
+  function codeLabel(code){ const m = /^(\d{2})(\d{2})(\d{2})([A-Z]*)$/.exec(String(code || '')); return m ? `${m[1]}.${m[2]}.${m[3]}${m[4] ? ' · ' + m[4] : ''}` : code; }
+  window.codeLabel = codeLabel;
   const _openV = openV;
   openV = function(c){
     _openV(c);
+    const vn = $('vname'); if(vn) vn.textContent = codeLabel(c.name);
     exitNote(); VIEW = 'video'; CURP = null;
     if(!c.video){
       vv.pause(); vv.removeAttribute('src'); vv.style.display = 'none';

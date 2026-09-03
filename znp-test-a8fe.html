@@ -2089,6 +2089,17 @@ body:has(#viewer.on) #ops-chip{z-index:5}
 #npanel .nfoot button{background:transparent;border:1px solid var(--line2);border-radius:999px;padding:5px 10px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--ink)}
 #npanel .nfoot .st{font-size:11px;color:var(--mut);margin-left:auto}
 @media (orientation:portrait){#npanel{left:10px;right:10px;width:auto;bottom:176px}}
+/* ── 제작 중 칩 팝업 (2026-09-03) ── */
+#ops-chip{cursor:pointer}
+#ops-pop{position:fixed;right:18px;bottom:64px;z-index:71;background:var(--card);border:1px solid var(--line2);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;min-width:250px;max-width:min(360px,80vw);display:none;font-size:12.5px;color:var(--ink)}
+#ops-pop.on{display:block}
+#ops-pop h6{margin:0 0 6px;font-size:11.5px;color:var(--mut);font-weight:600;letter-spacing:.04em}
+#ops-pop .row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line)}
+#ops-pop .row:first-of-type{border-top:none}
+#ops-pop .cd{font-weight:700}
+#ops-pop .ini{color:var(--mut);font-weight:500;margin-left:4px}
+#ops-pop .eta{text-align:right;white-space:nowrap}
+#ops-pop .eta small{display:block;color:var(--mut);font-size:10.5px}
 /* ── 셰이드 · 조합 패널 (사이드바 상단) ── */
 #pcombo{padding:0 16px 8px;border-bottom:1px solid var(--line);margin-bottom:6px;flex:none}
 #pcombo h5{margin:8px 0 4px;font-size:12px;color:var(--head);font-weight:600;letter-spacing:.03em}
@@ -2107,8 +2118,9 @@ body:has(#viewer.on) #ops-chip{z-index:5}
 (function(){
   const $ = id => document.getElementById(id);
   const viewer = $('viewer'), afterhalf = $('afterhalf');
-  const SHADES = [ /* 4단계 (OM1·OM2·OM3·MO, 2026-09-02 확정). 잠정 보정값 — 실제 생성 샘플로 캘리브레이션 필요 */
-    {id:'OM1', b:1.06, w:-3}, {id:'OM2', b:1.01, w:1}, {id:'OM3', b:0.96, w:4}, {id:'MO', b:0.91, w:8} ];
+  const SHADES = [ /* 비타 셰이드 기준 6단계 (0M1·0M2·0M3·0M4·1M1·1M2, 2026-09-03 대표님 지시). 밝기(b)·웜톤(w)은 3D-Master 명도 순서를 따른 잠정값 — 실제 생성 샘플로 캘리브레이션 필요 */
+    {id:'0M1', b:1.08, w:-4}, {id:'0M2', b:1.05, w:-2}, {id:'0M3', b:1.02, w:0}, {id:'0M4', b:0.99, w:2}, {id:'1M1', b:0.96, w:4}, {id:'1M2', b:0.93, w:7} ];
+  const SHADE_ALIAS = {OM1:'0M1', OM2:'0M2', OM3:'0M3', MO:'1M1'};   // 예전 4단계 저장값 호환
   const AXES = [ /* 문진표 5축 (케이스 JSON comboAxes 가 있으면 그것을 우선) */
     {k:'upper',   n:'상악 배열', o:['매끄럽게','자연스럽게','스텝지게']},
     {k:'lower',   n:'하악 배열', o:['매끄럽게']},
@@ -2141,6 +2153,27 @@ body:has(#viewer.on) #ops-chip{z-index:5}
       const lb = codeLabel(c.name); if(lb !== c.name && !nm.dataset.code){ nm.dataset.code = c.name; nm.textContent = lb; }
     });
   };
+  /* ── 제작 중 칩 팝업 (2026-09-03 대표님 요청): 칩을 누르면 어떤 케이스(코드·이니셜)가 언제 시작해 언제쯤 끝나는지 살짝 보여준다 ── */
+  (function(){
+    const chip = $('ops-chip'); if(!chip || typeof OPS_PROCESSING === 'undefined' || !OPS_PROCESSING.length) return;
+    const pop = document.createElement('div'); pop.id = 'ops-pop'; document.body.appendChild(pop);
+    const fmt = t => { const d = t ? new Date(t) : null; return d && !isNaN(d) ? d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) : '–'; };
+    function render(){
+      const now = Date.now();
+      pop.innerHTML = '<h6>제작 중 ' + OPS_PROCESSING.length + '건</h6>' + OPS_PROCESSING.map(p => {
+        const code = String(p.name || ''); const m = /^(\d{4,6})([A-Z]*)$/.exec(code); const num = m ? m[1] : code, ini = m ? m[2] : '';
+        const label = (typeof codeLabel === 'function' && codeLabel(code) !== code) ? codeLabel(code).split(' · ')[0] : num;
+        const eta = p.eta_min || 12; const st = p.started ? new Date(p.started).getTime() : NaN;
+        const end = isNaN(st) ? null : st + eta * 60000; const left = end ? Math.max(0, Math.round((end - now) / 60000)) : null;
+        const etaTxt = end ? (left > 0 ? '약 ' + left + '분 남음' : '곧 완료') : '약 ' + eta + '분 소요';
+        return `<div class="row"><div><span class="cd">${label}</span><span class="ini">${ini}</span><small style="display:block;color:var(--mut)">${p.stage || '프리셋·영상 생성'}${p.started ? ' · ' + fmt(p.started) + ' 시작' : ''}</small></div><div class="eta">${etaTxt}${end ? '<small>예상 ' + fmt(end) + '</small>' : ''}</div></div>`;
+      }).join('');
+    }
+    chip.addEventListener('click', e => { e.stopPropagation(); render(); pop.classList.toggle('on'); });
+    document.addEventListener('click', e => { if(!pop.contains(e.target)) pop.classList.remove('on'); });
+    setInterval(() => { if(pop.classList.contains('on')) render(); }, 30000);
+  })();
+
   /* 생년월일 코드(해외 상담회, 2026-09-03): YYMMDD+이니셜 → 카드·뷰어 제목을 "YY.MM.DD · 이니셜" 로 표시. 차트 코드(4자리+이니셜)는 그대로 */
   function codeLabel(code){ const m = /^(\d{2})(\d{2})(\d{2})([A-Z]*)$/.exec(String(code || '')); return m ? `${m[1]}.${m[2]}.${m[3]}${m[4] ? ' · ' + m[4] : ''}` : code; }
   window.codeLabel = codeLabel;
@@ -2213,7 +2246,7 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     if(CURP && compCv.style.display !== 'none') drawComposite(CUR, CURP, ok => { if(ok) compCv.style.display = ''; });
   };
   function applyShadeChipState(c){
-    CURSHADE = rec(c.name).shade || null;
+    CURSHADE = rec(c.name).shade || null; if(CURSHADE && SHADE_ALIAS[CURSHADE]) CURSHADE = SHADE_ALIAS[CURSHADE];
     document.querySelectorAll('#pcombo .shade .chip').forEach(b => b.classList.toggle('on', b.dataset.s === CURSHADE));
   }
 

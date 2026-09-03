@@ -2205,6 +2205,23 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     upd(); vload.classList.add('on'); vloadTimer = setInterval(upd, 30000);
   }
 
+  /* ── 자동 갱신 (상담회용, 2026-09-03): 60초마다 이 HTML 의 ETag/Last-Modified 를 HEAD 로 확인해 새 게시가 있으면
+        - 뷰어가 닫혀 있고 노트 중이 아니면 조용히 새로고침
+        - 뷰어가 열려 있으면 우상단에 "새 자료 있음 · 새로고침" 배지만 띄우고 클릭 시 새로고침 (상담 중 화면이 튀지 않게) ── */
+  (function(){
+    if(location.protocol === 'file:') return;
+    let tag = null; const badge = document.createElement('button'); badge.id = 'upd-badge'; badge.textContent = '새 자료 있음 · 새로고침'; badge.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:80;display:none;background:var(--acc-deep,#0B7B77);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-size:12.5px;cursor:pointer;box-shadow:var(--shadow-sm)';
+    badge.onclick = () => location.reload(); document.body.appendChild(badge);
+    async function check(){
+      try{
+        const r = await fetch(location.pathname + '?u=' + Date.now(), {method:'HEAD', cache:'no-store'}); const t = (r.headers.get('etag') || '') + '|' + (r.headers.get('last-modified') || '');
+        if(!tag){ tag = t; return; }
+        if(t !== tag){ const open = document.getElementById('viewer').classList.contains('on'); if(!open && !NOTE) location.reload(); else badge.style.display = ''; }
+      }catch(e){}
+    }
+    setTimeout(check, 3000); setInterval(check, 60000); window.__updCheck = check;
+  })();
+
   /* ── 제작 중 칩 팝업 (2026-09-03 대표님 요청): 칩을 누르면 어떤 케이스(코드·이니셜)가 언제 시작해 언제쯤 끝나는지 살짝 보여준다 ── */
   (function(){
     const chip = $('ops-chip'); if(!chip || typeof OPS_PROCESSING === 'undefined' || !OPS_PROCESSING.length) return;

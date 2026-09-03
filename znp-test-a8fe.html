@@ -2244,8 +2244,9 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     if(st) st.textContent = '조합 ' + x.key + (isWish ? ' · ★ 희망안' : '');
     if(show){
       exitNote(); vv.pause(); vv.style.display = 'none'; markSel(null); CURP = x;
-      if(c.maskPoly){ vpImg.style.display = 'none'; drawComposite(c, x, ok => { if(ok){ compCv.style.display = ''; } else { compCv.style.display = 'none'; vpImg.src = x.url; vpImg.style.display = ''; } resetZooms(); }); }
-      else { compCv.style.display = 'none'; vpImg.src = x.url; vpImg.style.display = ''; resetZooms(); }
+      /* 확대 유지(2026-09-03 대표님 요청): 조합을 바꿔도 줌·위치를 되돌리지 않는다. 케이스를 열 때·노트 진입 때만 초기화 */
+      if(c.maskPoly){ vpImg.style.display = 'none'; drawComposite(c, x, ok => { if(ok){ compCv.style.display = ''; } else { compCv.style.display = 'none'; vpImg.src = x.url; vpImg.style.display = ''; } syncZoom(); }); }
+      else { compCv.style.display = 'none'; vpImg.src = x.url; vpImg.style.display = ''; syncZoom(); }
       albl.innerHTML = 'AFTER · <b>문진표 조합</b> · ' + comboKey(c).replace(/\|/g,' · ');
       VIEW = 'combo:' + x.key;
     }
@@ -2254,7 +2255,10 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     if(!CUR) return; const r = rec(CUR.name); const key = comboKey(CUR);
     r.wish = (r.wish && r.wish.key === key) ? null : {key, axes:{...SEL}, shade:CURSHADE, at:new Date().toISOString()}; r.updated = new Date().toISOString(); save(); updateCombo(CUR, false);
   };
-  const _sp = selPreset; selPreset = function(i){ exitNote(); _sp(i); VIEW = CUR && CUR.presets ? CUR.presets[i].id : 'preset'; };
+  /* 줌 유지 도우미: 원본 코드의 resetZooms() 를 감싸 호출 전 상태를 되살린다. afterhalf 에 붙은 매체(vpImg·compCv)는 같은 스테이지 이벤트를 받아 Z 가 늘 같으므로 하나를 기준으로 맞춘다 */
+  function syncZoom(){ try{ const ref = zooms.find(z => z.media === vpImg) || zooms[0]; if(!ref) return; zooms.forEach(z => { z.Z.s = ref.Z.s; z.Z.x = ref.Z.x; z.Z.y = ref.Z.y; z.media.style.transform = ref.Z.s === 1 ? '' : `translate(${ref.Z.x}px,${ref.Z.y}px) scale(${ref.Z.s})`; }); }catch(e){} }
+  function keepZoom(fn){ let saved = null; try{ saved = zooms.map(z => ({s:z.Z.s, x:z.Z.x, y:z.Z.y})); }catch(e){} fn(); if(saved){ try{ zooms.forEach((z, i) => { Object.assign(z.Z, saved[i]); z.media.style.transform = saved[i].s === 1 ? '' : `translate(${saved[i].x}px,${saved[i].y}px) scale(${saved[i].s})`; }); }catch(e){} } }
+  const _sp = selPreset; selPreset = function(i){ exitNote(); keepZoom(() => _sp(i)); VIEW = CUR && CUR.presets ? CUR.presets[i].id : 'preset'; };
   const _sb = selBest;   selBest   = function(){ exitNote(); _sb(); VIEW = 'video'; CURP = null; };
 
   /* ── 4. 노트·그리기 (애프터 영역 위 캔버스, 정규화 좌표 저장) ── */

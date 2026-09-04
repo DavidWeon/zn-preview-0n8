@@ -2842,7 +2842,10 @@ const OPS_PROCESSING = [];
 body:has(#viewer.on) #ops-chip{z-index:5}
 /* ── 단계별 게시 배지 ── */
 .card .stage{position:absolute;top:10px;left:10px;background:rgba(18,26,24,.72);color:#fff;font-size:11px;border-radius:999px;padding:4px 10px;letter-spacing:.03em}
-/* ── 노트 도구 ── */
+/* ── 확대 화질 (2026-09-04): 원본 템플릿의 will-change:transform 은 크롬이 확대 전 해상도로 굳힌 레이어를 텍스처 확대만 해서 뭉개져 보인다.
+   해제하면 배율이 바뀔 때 원본 픽셀로 다시 그린다(소스 1800px 기준 서피스고에서 약 2.4배까지 선명, 그 이상은 보간). 영상은 720p 라 한계가 낮다 ── */
+#viewer .half img,#viewer .half video,#viewer .half canvas{will-change:auto}
+/* ── 노트 도구 (캔버스는 매체 transform 추종 · 2026-09-04) ── */
 #ntool{position:fixed;top:60px;right:16px;z-index:14;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 #viewer:has(#pside.on) #ntool{right:286px}
 @media (orientation:portrait){#viewer:has(#pside.on) #ntool{right:12px} #ntool{top:52px;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;max-width:70vw}}
@@ -2854,7 +2857,7 @@ body:has(#viewer.on) #ops-chip{z-index:5}
 #ntool .sw.on{box-shadow:0 0 0 2px var(--acc-deep)}
 #ntool .row{display:flex;gap:6px;align-items:center}
 #afterhalf{position:relative}
-#ncv{position:absolute;touch-action:none;cursor:crosshair;z-index:13;display:none}
+#ncv{position:absolute;touch-action:none;cursor:crosshair;z-index:13;display:none;transform-origin:center center;will-change:transform;box-shadow:none}
 #ncv.on{display:block}
 #npanel{position:fixed;left:16px;bottom:44px;z-index:14;width:min(360px,60vw);background:var(--card);border:1px solid var(--line2);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;display:none}
 #npanel.on{display:block}
@@ -2882,29 +2885,42 @@ body:has(#viewer.on) #ops-chip{z-index:5}
 #ops-pop .ini{color:var(--mut);font-weight:500;margin-left:4px}
 #ops-pop .eta{text-align:right;white-space:nowrap}
 #ops-pop .eta small{display:block;color:var(--mut);font-size:10.5px}
-/* ── 셰이드 · 조합 패널 (사이드바 상단) ── */
-#pcombo{padding:0 16px 8px;border-bottom:1px solid var(--line);margin-bottom:6px;flex:none}
-#pcombo h5{margin:8px 0 4px;font-size:12px;color:var(--head);font-weight:600;letter-spacing:.03em}
-#pcombo .ax{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;align-items:center}
-#pcombo .ax b{font-size:10.5px;color:var(--mut);width:46px;flex:none;font-weight:500}
-#pcombo .chip{border:1px solid var(--line2);background:transparent;color:var(--ink);border-radius:999px;padding:3px 8px;font-size:10.5px;cursor:pointer;font-family:inherit}
-#pcombo .chip.on{background:var(--acc-deep);color:#fff;border-color:var(--acc-deep)}
-#pcombo .chip.na{opacity:.4}
-#pcombo .cstat{font-size:10.5px;color:var(--mut);margin:2px 0 4px}
-#pcombo .wish{background:var(--head);color:#fff;border:none;border-radius:999px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit}
-#pcombo .wish.on{background:var(--acc-deep)}
-@media (orientation:portrait){#pcombo{display:none} #pcombo.mob{display:block;position:fixed;left:0;right:0;bottom:168px;background:var(--card);border-top:1px solid var(--line);padding:6px 12px;z-index:12;max-height:38vh;overflow:auto}}
+/* ── 셰이드 · 조합 패널 (사이드바 상단) — 원본 대시보드 언어로 (2026-09-04): 속도 선택기(.speed/.sp)와 같은 세그먼트 pill,
+      레터스페이스 라벨(.lbl), 보조 버튼은 #close 와 같은 외곽선 pill. 채움 색은 선택 상태 하나(--acc-deep)에만 ── */
+#pcombo{padding:2px 20px 14px;border-bottom:1px solid var(--line);margin-bottom:4px;flex:none}
+#pcombo .sec{margin-top:14px}
+#pcombo .sec:first-child{margin-top:0}
+#pcombo .lb{display:flex;align-items:baseline;justify-content:space-between;color:var(--mut);font-size:11px;letter-spacing:.08em;margin:0 2px 6px}
+#pcombo .lb small{font-size:10.5px;color:var(--dim);letter-spacing:.03em;font-variant-numeric:tabular-nums}
+#pcombo .ax{margin-top:8px}
+#pcombo .ax b{display:block;color:var(--mut);font-size:11px;font-weight:500;letter-spacing:.04em;margin:0 0 4px 2px}
+#pcombo .seg{display:flex;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+#pcombo .chip{flex:1 1 0;min-width:0;background:transparent;border:none;color:var(--mut);border-radius:999px;padding:6px 4px;font-size:11.5px;cursor:pointer;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background-color .15s,color .15s}
+#pcombo .chip:hover{color:var(--head)}
+#pcombo .chip.on{background:var(--acc-deep);color:var(--acc-ink);font-weight:700}
+#pcombo .chip.na{color:var(--dim)}
+#pcombo .chip.na.on{background:var(--dim)}
+#pcombo .cstat{font-size:11px;color:var(--dim);margin:8px 2px 0;min-height:14px;letter-spacing:.02em}
+#pcombo .cstat:empty{display:none}
+#pcombo .wish{display:block;width:100%;margin-top:10px;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:999px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s,background-color .15s}
+#pcombo .wish:hover{border-color:var(--head);color:var(--head)}
+#pcombo .wish.on{background:var(--acc-deep);border-color:var(--acc-deep);color:var(--acc-ink);font-weight:700}
+@media (orientation:portrait){#pcombo{display:none} #pcombo.mob{display:block;position:fixed;left:0;right:0;bottom:168px;background:var(--card);border-top:1px solid var(--line);padding:8px 20px 14px;z-index:12;max-height:38vh;overflow:auto}
+  /* 세로(태블릿): 축을 2열로, 터치용으로 글자·높이 약간 키움 */
+  #pcombo.mob .sec:last-child{display:grid;grid-template-columns:1fr 1fr;column-gap:20px;align-items:end}
+  #pcombo.mob .sec:last-child .lb,#pcombo.mob .sec:last-child .cstat,#pcombo.mob .sec:last-child .wish{grid-column:1/-1}
+  #pcombo.mob .chip{font-size:12.5px;padding:8px 6px} #pcombo.mob .wish{padding:10px 12px;font-size:13px}}
 </style>
 <script>
 /* ══ TEST LAYER (additive · 원본 스크립트 무수정) ══ */
 (function(){
   const $ = id => document.getElementById(id);
   const viewer = $('viewer'), afterhalf = $('afterhalf');
-  const SHADES = [ /* 비타 셰이드 sRGB (대표님 제공, 2026-09-03). 생성 치아를 0M1 기준으로 보고 목표색/0M1 비율을 multiply 로 얹는다 */
+  const SHADES = [ /* 비타 셰이드 sRGB 5단계 (대표님 제공 2026-09-03 · 0M4 는 없는 셰이드라 2026-09-04 삭제). 생성 치아를 0M1 기준으로 보고 목표색/0M1 비율을 multiply 로 얹는다 */
     {id:'0M1', rgb:[246,244,238], desc:'순백에 가까운 쿨톤 화이트'}, {id:'0M2', rgb:[242,238,229], desc:'화사한 미백 화이트'}, {id:'0M3', rgb:[238,232,220], desc:'연한 미색 블리치 화이트'},
-    {id:'0M4', rgb:[233,226,211], desc:'부드러운 아이보리'}, {id:'1M1', rgb:[236,229,215], desc:'맑고 밝은 크림 화이트'}, {id:'1M2', rgb:[229,219,201], desc:'따뜻한 밝은 상아색'} ];
+    {id:'1M1', rgb:[236,229,215], desc:'맑고 밝은 크림 화이트'}, {id:'1M2', rgb:[229,219,201], desc:'따뜻한 밝은 상아색'} ];
   const SHADE_BASE = [246,244,238];
-  const SHADE_ALIAS = {OM1:'0M1', OM2:'0M2', OM3:'0M3', MO:'1M1'};   // 예전 4단계 저장값 호환
+  const SHADE_ALIAS = {OM1:'0M1', OM2:'0M2', OM3:'0M3', MO:'1M1', '0M4':null};   // 예전 4단계 저장값 호환 · 0M4 는 2026-09-04 삭제(저장돼 있으면 선택 없음)
   const AXES = [ /* 문진표 5축 (케이스 JSON comboAxes 가 있으면 그것을 우선) */
     {k:'upper',   n:'상악 배열', o:['매끄럽게','자연스럽게','스텝지게']},
     {k:'lower',   n:'하악 배열', o:['매끄럽게']},
@@ -3065,7 +3081,7 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     if(CURP && compCv.style.display !== 'none') drawComposite(CUR, CURP, ok => { if(ok) compCv.style.display = ''; });
   };
   function applyShadeChipState(c){
-    CURSHADE = rec(c.name).shade || null; if(CURSHADE && SHADE_ALIAS[CURSHADE]) CURSHADE = SHADE_ALIAS[CURSHADE];
+    CURSHADE = rec(c.name).shade || null; if(CURSHADE && CURSHADE in SHADE_ALIAS) CURSHADE = SHADE_ALIAS[CURSHADE]; if(CURSHADE && !SHADES.some(x => x.id === CURSHADE)) CURSHADE = null;
     document.querySelectorAll('#pcombo .shade .chip').forEach(b => b.classList.toggle('on', b.dataset.s === CURSHADE));
   }
 
@@ -3082,23 +3098,23 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     const axes = c.comboAxes || AXES;
     const have = new Set(); (c.combos || []).forEach(x => axes.forEach(a => have.add(a.k + ':' + (x.axes || {})[a.k])));
     axes.forEach(a => { if(!SEL[a.k]) SEL[a.k] = a.o[Math.min(1, a.o.length - 1)]; });
-    let h = '<h5>셰이드 <span style="font-weight:400;color:var(--mut)">· 화면 보정</span></h5><div class="ax shade">' +
-      SHADES.map(s => `<button class="chip" data-s="${s.id}" title="${s.desc}" onclick="selShade('${s.id}')">${s.id}</button>`).join('') + '</div>';
-    h += '<h5>문진표 조합' + (c.combos ? ` <span style="font-weight:400;color:var(--mut)">· ${c.combos.length}장</span>` : ' <span style="font-weight:400;color:var(--mut)">· 미생성</span>') + '</h5>';
+    let h = '<div class="sec"><div class="lb">셰이드<small>화면 보정</small></div><div class="seg shade">' +
+      SHADES.map(s => `<button class="chip" data-s="${s.id}" title="${s.desc}" onclick="selShade('${s.id}')">${s.id}</button>`).join('') + '</div></div>';
+    h += '<div class="sec"><div class="lb">문진표 조합' + (c.combos ? `<small>${c.combos.length}장</small>` : '<small>생성 중</small>') + '</div>';
     axes.forEach(a => {
-      h += `<div class="ax"><b>${a.n}</b>` + a.o.map(o => `<button class="chip ${SEL[a.k]===o?'on':''} ${c.combos && !have.has(a.k+':'+o)?'na':''}" onclick="selAxis('${a.k}','${o}')">${o}</button>`).join('') + '</div>';
+      h += `<div class="ax"><b>${a.n}</b><div class="seg">` + a.o.map(o => `<button class="chip ${SEL[a.k]===o?'on':''} ${c.combos && !have.has(a.k+':'+o)?'na':''}" onclick="selAxis('${a.k}','${o}')">${o}</button>`).join('') + '</div></div>';
     });
-    h += `<div class="cstat" id="cstat"></div><button class="wish" id="wishbtn" onclick="markWish()">이 조합을 환자 희망안으로</button>`;
+    h += `<div class="cstat" id="cstat"></div><button class="wish" id="wishbtn" onclick="markWish()">희망안으로 저장</button></div>`;
     box.innerHTML = h; applyShadeChipState(c); updateCombo(c, false);
   }
   window.selAxis = function(k, o){ SEL[k] = o; renderCombo(CUR); updateCombo(CUR, true); };
   function updateCombo(c, show){
     const x = findCombo(c), st = $('cstat'), wb = $('wishbtn');
     const r = rec(c.name); const isWish = r.wish && r.wish.key === comboKey(c);
-    if(wb) wb.classList.toggle('on', !!isWish);
-    if(!c.combos){ if(st) st.textContent = '조합 이미지가 아직 생성되지 않았습니다'; return; }
-    if(!x){ if(st) st.textContent = '이 조합은 미생성 (' + comboKey(c).replace(/\|/g,' · ') + ')'; return; }
-    if(st) st.textContent = '조합 ' + x.key + (isWish ? ' · ★ 희망안' : '');
+    if(wb){ wb.classList.toggle('on', !!isWish); wb.textContent = isWish ? '★ 희망안' : '희망안으로 저장'; }
+    if(!c.combos){ if(st) st.textContent = '조합 이미지 생성 중'; return; }
+    if(!x){ if(st) st.textContent = '이 조합은 아직 없음'; return; }
+    if(st){ st.textContent = ''; st.title = x.key; }
     if(show){
       exitNote(); vv.pause(); vv.style.display = 'none'; markSel(null); CURP = x;
       /* 확대 유지(2026-09-03 대표님 요청): 조합을 바꿔도 줌·위치를 되돌리지 않는다. 케이스를 열 때·노트 진입 때만 초기화 */
@@ -3113,7 +3129,8 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     r.wish = (r.wish && r.wish.key === key) ? null : {key, axes:{...SEL}, shade:CURSHADE, at:new Date().toISOString()}; r.updated = new Date().toISOString(); save(); updateCombo(CUR, false);
   };
   /* 줌 유지 도우미: 원본 코드의 resetZooms() 를 감싸 호출 전 상태를 되살린다. afterhalf 에 붙은 매체(vpImg·compCv)는 같은 스테이지 이벤트를 받아 Z 가 늘 같으므로 하나를 기준으로 맞춘다 */
-  function syncZoom(){ try{ const ref = zooms.find(z => z.media === vpImg) || zooms[0]; if(!ref) return; zooms.forEach(z => { z.Z.s = ref.Z.s; z.Z.x = ref.Z.x; z.Z.y = ref.Z.y; z.media.style.transform = ref.Z.s === 1 ? '' : `translate(${ref.Z.x}px,${ref.Z.y}px) scale(${ref.Z.s})`; }); }catch(e){} }
+  function copyZoom(from){ try{ const src = zooms.find(z => z.media === from); if(!src) return; zooms.forEach(z => { if(z.media === from || !afterhalf.contains(z.media)) return; Object.assign(z.Z, {s:src.Z.s, x:src.Z.x, y:src.Z.y}); z.media.style.transform = src.Z.s === 1 ? '' : `translate(${src.Z.x}px,${src.Z.y}px) scale(${src.Z.s})`; }); }catch(e){} }
+  function syncZoom(){ try{ const ref = zooms.find(z => z.media === vpImg) || zooms[0]; if(!ref) return; zooms.forEach(z => { if(!afterhalf.contains(z.media)) return; z.Z.s = ref.Z.s; z.Z.x = ref.Z.x; z.Z.y = ref.Z.y; z.media.style.transform = ref.Z.s === 1 ? '' : `translate(${ref.Z.x}px,${ref.Z.y}px) scale(${ref.Z.s})`; }); }catch(e){} }
   function keepZoom(fn){ let saved = null; try{ saved = zooms.map(z => ({s:z.Z.s, x:z.Z.x, y:z.Z.y})); }catch(e){} fn(); if(saved){ try{ zooms.forEach((z, i) => { Object.assign(z.Z, saved[i]); z.media.style.transform = saved[i].s === 1 ? '' : `translate(${saved[i].x}px,${saved[i].y}px) scale(${saved[i].s})`; }); }catch(e){} } }
   const _sp = selPreset; selPreset = function(i){ exitNote(); keepZoom(() => _sp(i)); VIEW = CUR && CUR.presets ? CUR.presets[i].id : 'preset'; };
   const _sb = selBest;   selBest   = function(){ exitNote(); _sb(); VIEW = 'video'; CURP = null; };
@@ -3140,13 +3157,18 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     const cands = [compCv, vpImg, vv].filter(el => el.style.display !== 'none' && el.getBoundingClientRect().width > 0);
     return cands[0] || null;
   }
+  /* 캔버스는 매체의 레이아웃 박스(transform 제외)에 맞추고, 매체와 같은 transform 을 얹는다 → 확대·이동해도 그림이 이미지에 붙어 따라온다 (2026-09-04 대표님 요청).
+     좌표는 정규화(0~1)로 저장하므로 확대 상태에서 그려도 getBoundingClientRect(변환 후 사각형) 기준으로 그대로 맞는다. 백킹 해상도는 2~3배로 두어 확대해도 선이 덜 뭉개진다. */
   function fitCanvas(){
-    const el = baseEl(), h = afterhalf.getBoundingClientRect();
-    const r = el ? el.getBoundingClientRect() : {left:h.left + 16, top:h.top + 16, width:h.width - 32, height:h.height - 32};
-    ncv.style.left = (r.left - h.left) + 'px'; ncv.style.top = (r.top - h.top) + 'px'; ncv.style.width = r.width + 'px'; ncv.style.height = r.height + 'px';
-    const dpr = Math.min(2, window.devicePixelRatio || 1); ncv.width = Math.round(r.width * dpr); ncv.height = Math.round(r.height * dpr);
-    redraw();
+    const el = baseEl(); let L, T, Wd, Ht;
+    if(el){ L = el.offsetLeft; T = el.offsetTop; Wd = el.offsetWidth; Ht = el.offsetHeight; }
+    else { const h = afterhalf.getBoundingClientRect(); L = 16; T = 16; Wd = h.width - 32; Ht = h.height - 32; }
+    ncv.style.left = L + 'px'; ncv.style.top = T + 'px'; ncv.style.width = Wd + 'px'; ncv.style.height = Ht + 'px';
+    const k = Math.min(3, Math.max(2, window.devicePixelRatio || 1)); ncv.width = Math.round(Wd * k); ncv.height = Math.round(Ht * k);
+    followZoom(); redraw();
   }
+  function followZoom(){ const el = baseEl(); const t = el ? el.style.transform : ''; if(ncv.style.transform !== t) ncv.style.transform = t; }
+  (function(){ const mo = new MutationObserver(() => { if(NOTE) followZoom(); }); [vv, vpImg, compCv].forEach(m => mo.observe(m, {attributes:true, attributeFilter:['style']})); })();
   function strokes(){ if(!CUR) return []; const v = rec(CUR.name).views; return (v[VIEW] = v[VIEW] || {strokes:[]}).strokes; }
   function redraw(){
     const g = ncv.getContext('2d'); g.clearRect(0, 0, ncv.width, ncv.height); if(!CUR) return;
@@ -3160,12 +3182,12 @@ body:has(#viewer.on) #ops-chip{z-index:5}
   window.toggleNote = function(){ NOTE ? exitNote() : enterNote(); };
   function enterNote(){
     if(!CUR) return; NOTE = true; $('nbtn').classList.add('on'); $('nsub').style.display = '';
-    if(vv.style.display !== 'none' && (CUR.videoStill || CUR.thumb)){ /* 영상 → 마지막 프레임 정지컷 위에 노트 */
-      vv.pause(); vv.style.display = 'none'; vpImg.src = CUR.videoStill || CUR.thumb; vpImg.style.display = '';
+    if(vv.style.display !== 'none' && (CUR.videoStill || CUR.thumb)){ /* 영상 → 마지막 프레임 정지컷 위에 노트. 보던 줌·위치는 정지컷에 그대로 (2026-09-04) */
+      copyZoom(vv); vv.pause(); vv.style.display = 'none'; vpImg.src = CUR.videoStill || CUR.thumb; vpImg.style.display = '';
       albl.innerHTML = 'AFTER · <b>영상 마지막 장면</b> <span style="opacity:.6">· 노트 모드</span>'; VIEW = 'video';
       vpImg.complete ? fitCanvas() : vpImg.addEventListener('load', fitCanvas, {once:true});
     }
-    resetZooms(); ncv.classList.add('on'); fitCanvas();
+    ncv.classList.add('on'); fitCanvas();
   }
   function exitNote(){ if(!NOTE) return; NOTE = false; drawing = false; ncv.classList.remove('on'); const b = $('nbtn'); if(b) b.classList.remove('on'); const s = $('nsub'); if(s) s.style.display = 'none'; }
   /* 입력 규칙(2026-09-03 대표님 요청): 펜은 버튼을 누르고 있는 동안만 그린다(떼면 즉시 멈춤). 화면 이동은 PC = 휠 클릭(가운데 버튼) 드래그,

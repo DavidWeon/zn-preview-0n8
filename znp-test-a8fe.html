@@ -2244,7 +2244,7 @@ const q = document.getElementById('q');
 
 document.getElementById('n-case').textContent = CASES.length;
 document.getElementById('n-celeb').textContent = CELEBS.length || '준비 중';
-document.getElementById('cnt').textContent = `완성 ${CASES.length}건 · 갱신 2026-09-04`;
+document.getElementById('cnt').textContent = `완성 ${CASES.length}건 · 갱신 2026-09-05`;
 
 function setTab(t){
   TAB = t;
@@ -2718,7 +2718,7 @@ attachZoom(document.getElementById('afterhalf'), compCv); // 합성 캔버스에
       항목 구조: { name:"코드", note:"약 12분 소요" }
    2) CASES 항목에 talk 필드(faststart mp4 URL)가 있으면 사이드바 ★베스트 바로 아래에
       "말하기 미리보기" 카드가 생기고, 클릭 시 배속 보정을 무시하고 항상 1배속 재생. */
-const OPS_PROCESSING = [];
+const OPS_PROCESSING = [{"name": "981119X", "note": "약 12분 소요", "started": "2026-09-05T12:05:46", "eta_min": 12, "stage": "프리셋·영상 생성"}];
 
 (function(){
   /* ── 1. 말하기 미리보기 카드 ── */

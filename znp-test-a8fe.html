@@ -2974,11 +2974,13 @@ body:has(#viewer.on) #ops-chip{z-index:5}
 #npanel .nfoot .st{font-size:11px;color:var(--mut);margin-left:auto}
 @media (orientation:portrait){#npanel{left:10px;right:10px;width:auto;bottom:176px}}
 /* ── 영상 제작 중 로딩 표시 (2026-09-03) ── */
-#vload{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:12;display:none;flex-direction:column;align-items:center;gap:8px;background:rgba(18,26,24,.62);color:#fff;border-radius:16px;padding:14px 18px;font-size:12.5px;pointer-events:none;backdrop-filter:blur(2px)}
+/* 2026-09-05 대표님 요청: 가운데 팝업이 얼굴을 가려서 AFTER 영역 왼쪽 아래 모서리의 가로 칩으로 이동 (이미지를 가리지 않게) */
+#vload{position:absolute;left:12px;bottom:12px;z-index:12;display:none;flex-direction:row;align-items:center;gap:8px;background:rgba(18,26,24,.62);color:#fff;border-radius:999px;padding:6px 12px 6px 8px;font-size:11.5px;line-height:1.3;pointer-events:none;backdrop-filter:blur(2px);max-width:calc(100% - 24px)}
 #vload.on{display:flex}
-#vload img{width:44px;height:44px;animation:vspin 1.6s linear infinite}
-#vload b{font-size:13.5px}
-#vload small{opacity:.8}
+#vload img{width:22px;height:22px;flex:none;animation:vspin 1.6s linear infinite}
+#vload b{font-size:12px;white-space:nowrap}
+#vload small{opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px), (orientation:portrait){ #vload{bottom:auto;top:52px;left:8px;font-size:10.5px;padding:5px 10px 5px 6px} #vload img{width:18px;height:18px} #vload b{font-size:11px} }
 @keyframes vspin{to{transform:rotate(360deg)}}
 /* ── 제작 중 칩 팝업 (2026-09-03) ── */
 #ops-chip{cursor:pointer}

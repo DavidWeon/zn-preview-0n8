@@ -7309,17 +7309,52 @@ attachZoom(document.getElementById('afterhalf'), compCv); // 합성 캔버스에
   @media (prefers-reduced-motion:reduce){.card.proc .pthumb{animation:none}.card.proc .spin{animation-duration:2.5s}}
   #ops-chip{position:fixed;right:18px;bottom:18px;z-index:70;background:var(--card,#fff);border:1px solid var(--line,#E3E3E4);border-radius:999px;padding:9px 16px 9px 12px;font-size:12.5px;color:var(--ink,#1A1612);box-shadow:0 6px 24px rgba(0,0,0,.10);display:flex;align-items:center;gap:9px}
   #ops-chip .spin{width:14px;height:14px;border:2px solid #D8D8DA;border-top-color:var(--acc-deep,#0B7B77);border-radius:50%;animation:opsSpin 1s linear infinite;flex:none}
+  /* 새 자료 알림 토스트 (2026-09-07): 강제 새로고침 대신 우하단에서 살짝 올라오는 알림. 클릭해야만 새로고침 — 노트·상담 중 화면 튕김 방지 */
+  #upd-toast{position:fixed;right:18px;bottom:70px;z-index:9000;display:flex;align-items:center;gap:10px;background:var(--acc-deep,#0B7B77);color:#fff;border-radius:14px;padding:12px 14px 12px 16px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.18);transform:translateY(24px);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
+  #upd-toast.on{transform:none;opacity:1;pointer-events:auto}
+  #upd-toast b{font-weight:600}
+  #upd-toast button{border:none;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;background:#fff;color:var(--acc-deep,#0B7B77);font-weight:600}
+  #upd-toast .x{background:transparent;color:#fff;opacity:.75;padding:4px 6px;font-size:14px}
+  body:not(:has(#ops-chip)) #upd-toast{bottom:18px}
 </style>
 <script>
 /* ── OPS 레이어 (운영 세션 additive · 원본 스크립트 무수정) ─────────────────────────
    1) OPS_PROCESSING: 엔진이 배치 시작 시 항목을 채워 커밋하면 케이스 그리드 맨 앞에
-      "제작 중" 셔머 카드가 뜨고, 우하단 칩과 함께 60초마다 자동 새로고침된다.
-      완료 커밋 시 이 배열을 비우고 CASES에 완성 케이스를 추가한다.
+      "제작 중" 셔머 카드가 뜨고, 우하단 칩이 60초마다 새 게시를 확인해 알림 토스트만 띄운다(강제 새로고침 없음, 2026-09-07 대표님 요청:
+      노트·상담 중 메인 화면으로 튕기지 않게. 새로고침은 토스트의 버튼을 눌렀을 때만). 완료 커밋 시 이 배열을 비우고 CASES에 완성 케이스를 추가한다.
       항목 구조: { name:"코드", note:"약 12분 소요" }
    2) CASES 항목에 talk 필드(faststart mp4 URL)가 있으면 사이드바 ★베스트 바로 아래에
       "말하기 미리보기" 카드가 생기고, 클릭 시 배속 보정을 무시하고 항상 1배속 재생. */
-const OPS_PROCESSING = [{"name": "961213X", "note": "약 12분 소요", "started": "2026-09-05T12:15:57", "eta_min": 12, "stage": "프리셋·영상 생성"}, {"name": "890823X", "note": "약 12분 소요", "started": "2026-09-05T13:16:10", "eta_min": 12, "stage": "프리셋·영상 생성"}];
+const OPS_PROCESSING = [];
 
+/* 새 자료 알림 (2026-09-07 대표님 요청): 어떤 경우에도 자동 location.reload() 하지 않는다. 토스트의 "새로고침" 버튼을 눌렀을 때만. */
+(function(){
+  let toast = null;
+  window.__notifyUpdate = function(msg){
+    if(!toast){
+      toast = document.createElement('div'); toast.id = 'upd-toast';
+      toast.innerHTML = '<span><b>새 자료가 준비됐습니다</b><br><small id="upd-toast-msg"></small></span><button id="upd-toast-go">새로고침</button><button class="x" id="upd-toast-x" title="나중에">✕</button>';
+      document.body.appendChild(toast);
+      toast.querySelector('#upd-toast-go').onclick = () => location.reload();
+      toast.querySelector('#upd-toast-x').onclick = () => toast.classList.remove('on');
+    }
+    toast.querySelector('#upd-toast-msg').textContent = msg || '보던 화면은 그대로 둡니다. 준비되면 새로고침을 눌러 주세요';
+    requestAnimationFrame(() => toast.classList.add('on'));
+  };
+  window.__startUpdateWatch = function(){
+    if(window.__updWatch || location.protocol === 'file:') return;
+    let tag = null;
+    async function check(){
+      try{
+        const r = await fetch(location.pathname + '?u=' + Date.now(), {method:'HEAD', cache:'no-store'});
+        const t = (r.headers.get('etag') || '') + '|' + (r.headers.get('last-modified') || '');
+        if(!tag){ tag = t; return; }
+        if(t !== tag){ tag = t; window.__notifyUpdate(); }
+      }catch(e){}
+    }
+    setTimeout(check, 3000); window.__updWatch = setInterval(check, 60000); window.__updCheck = check;
+  };
+})();
 (function(){
   /* ── 1. 말하기 미리보기 카드 ── */
   let TALKMODE = false;
@@ -7370,7 +7405,7 @@ const OPS_PROCESSING = [{"name": "961213X", "note": "약 12분 소요", "started
     d.className = 'card proc'; d.dataset.ops = '1';
     d.innerHTML = `<div class="pthumb"><div class="spin"></div></div>
       <div class="meta"><div class="nm">${p.name || '새 케이스'}</div>
-      <div class="dt">제작 중${p.note ? ' · ' + p.note : ''} · 완성되면 자동 표시</div></div>`;
+      <div class="dt">제작 중${p.note ? ' · ' + p.note : ''} · 완성되면 알림</div></div>`;
     return d;
   }
   function injectProc(){
@@ -7386,9 +7421,9 @@ const OPS_PROCESSING = [{"name": "961213X", "note": "약 12분 소요", "started
     if(g) new MutationObserver(() => injectProc()).observe(g, {childList:true});
     const chip = document.createElement('div');
     chip.id = 'ops-chip';
-    chip.innerHTML = `<div class="spin"></div>제작 중 ${OPS_PROCESSING.length}건 · 1분마다 자동 새로고침`;
+    chip.innerHTML = `<div class="spin"></div>제작 중 ${OPS_PROCESSING.length}건 · 완성되면 알림`;
     document.body.appendChild(chip);
-    setTimeout(() => location.reload(), 60000);
+    window.__startUpdateWatch();   // 60초마다 새 게시 확인 → 알림 토스트만 (강제 새로고침 없음)
   }
 })();
 </script>
@@ -7565,25 +7600,26 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     const eta = c.videoEta || 12; const st = c.imagePublished ? new Date(c.imagePublished).getTime() : NaN;
     const upd = () => {
       const el = $('vload-eta'); if(!el) return;
-      if(isNaN(st)){ el.textContent = '약 ' + eta + '분 소요 · 완료되면 자동으로 바뀝니다'; return; }
+      if(isNaN(st)){ el.textContent = '약 ' + eta + '분 소요 · 완료되면 우하단 알림이 뜹니다'; return; }
       const left = Math.round((st + eta * 60000 - Date.now()) / 60000);
-      el.textContent = left > 0 ? `약 ${left}분 남음 · 예상 ${new Date(st + eta * 60000).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}` : '곧 완료 · 화면이 1분마다 새로고침됩니다';
+      el.textContent = left > 0 ? `약 ${left}분 남음 · 예상 ${new Date(st + eta * 60000).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}` : '곧 완료 · 준비되면 우하단 알림이 뜹니다';
     };
     upd(); vload.classList.add('on'); vloadTimer = setInterval(upd, 30000);
   }
 
-  /* ── 자동 갱신 (상담회용, 2026-09-03): 60초마다 이 HTML 의 ETag/Last-Modified 를 HEAD 로 확인해 새 게시가 있으면
-        - 뷰어가 닫혀 있고 노트 중이 아니면 조용히 새로고침
-        - 뷰어가 열려 있으면 우상단에 "새 자료 있음 · 새로고침" 배지만 띄우고 클릭 시 새로고침 (상담 중 화면이 튀지 않게) ── */
+  /* ── 자동 갱신 (상담회용, 2026-09-03 → 2026-09-07 개정): 60초마다 이 HTML 의 ETag/Last-Modified 를 확인해 새 게시가 있으면
+        우하단 알림 토스트만 띄운다(원본 템플릿의 __startUpdateWatch). 어떤 경우에도 자동 새로고침하지 않는다 — 노트·상담 중 튕김 방지(대표님 요청). ── */
   (function(){
+    if(typeof window.__startUpdateWatch === 'function'){ window.__startUpdateWatch(); return; }
+    // 구 원본 템플릿 폴백: 배지만 띄우고 자동 새로고침 없음
     if(location.protocol === 'file:') return;
-    let tag = null; const badge = document.createElement('button'); badge.id = 'upd-badge'; badge.textContent = '새 자료 있음 · 새로고침'; badge.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:80;display:none;background:var(--acc-deep,#0B7B77);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-size:12.5px;cursor:pointer;box-shadow:var(--shadow-sm)';
+    let tag = null; const badge = document.createElement('button'); badge.id = 'upd-badge'; badge.textContent = '새 자료 있음 · 새로고침'; badge.style.cssText = 'position:fixed;right:18px;bottom:70px;z-index:9000;display:none;background:var(--acc-deep,#0B7B77);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-size:12.5px;cursor:pointer;box-shadow:var(--shadow-sm)';
     badge.onclick = () => location.reload(); document.body.appendChild(badge);
     async function check(){
       try{
         const r = await fetch(location.pathname + '?u=' + Date.now(), {method:'HEAD', cache:'no-store'}); const t = (r.headers.get('etag') || '') + '|' + (r.headers.get('last-modified') || '');
         if(!tag){ tag = t; return; }
-        if(t !== tag){ const open = document.getElementById('viewer').classList.contains('on'); if(!open && !NOTE) location.reload(); else badge.style.display = ''; }
+        if(t !== tag){ tag = t; badge.style.display = ''; }
       }catch(e){}
     }
     setTimeout(check, 3000); setInterval(check, 60000); window.__updCheck = check;

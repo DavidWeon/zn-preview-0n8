@@ -339,6 +339,7 @@ const CASES = [
    ]
   ],
   "videoOmitted": true,
+  "bestOmitted": true,
   "presets": [
    {
     "id": "P1",
@@ -7705,8 +7706,8 @@ function renderPresets(c){
   const ps = document.getElementById('pside'), pl = document.getElementById('plist');
   if(!c.presets || !c.presets.length){ ps.classList.remove('on'); pl.innerHTML = ''; return; }
   ps.classList.add('on');
-  document.getElementById('pcnt').textContent = `심사 통과 ${c.presets.length + 1}안`;
-  let html = `<div class="pcard sel" id="pc-best" onclick="selBest()">
+  document.getElementById('pcnt').textContent = `심사 통과 ${c.presets.length + (c.bestOmitted ? 0 : 1)}안`;
+  let html = `<div class="pcard sel" id="pc-best" onclick="selBest()"${c.bestOmitted ? ' style="display:none"' : ''}>
     <div class="pt"><canvas id="pth-best" width="444" height="232"></canvas><span class="vchip">▶ 전환 영상</span></div>
     <div class="px"><div class="pn"><span class="st">★</span> 베스트 · 표준 (BL2 소프트스퀘어)</div><div class="pd">상담 기본, 비포→애프터 5초</div></div></div>`;
   c.presets.forEach((p,i) => {
@@ -7790,6 +7791,7 @@ function selPreset(i){
 function selBest(){
   COMPSEQ++;
   compCv.style.display = 'none';
+  if(CUR && CUR.bestOmitted && CUR.presets && CUR.presets.length){ selPreset(0); return; }   // 추천 스타일 슬롯 제외 케이스(2026-09-11)
   if(CUR && !CUR.video){ vv.style.display = 'none'; vpImg.src = CUR.thumb; vpImg.style.display = ''; albl.innerHTML = 'AFTER · <b>베스트 이미지</b> <span style="opacity:.6">· ' + (CUR.videoOmitted ? '전환 영상 없음' : '전환 영상 제작 중') + '</span>'; markSel('pc-best'); resetZooms(); return; }
   vpImg.style.display = 'none';
   vv.style.display = ''; vv.play(); applySpeed();
@@ -7807,6 +7809,7 @@ function openV(c){
   renderPresets(c);
   if(c.presets){ loadImg(c.before, ()=>{}); c.presets.forEach(p => loadImg(p.url, ()=>{})); } // 프리로드 → 클릭 시 즉시 합성
   if(c.video){ vv.src = c.video; vv.play(); applySpeed(); }
+  else if(c.bestOmitted && c.presets && c.presets.length){ vv.pause(); vv.removeAttribute('src'); vv.style.display = 'none'; selPreset(0); }   // 추천 스타일 슬롯 제외(2026-09-11): P1 시뮬레이션으로 열림
   else { vv.pause(); vv.removeAttribute('src'); vv.style.display = 'none'; vpImg.src = c.thumb; vpImg.style.display = '';
          albl.innerHTML = 'AFTER · <b>베스트 이미지</b> <span style="opacity:.6">· ' + (c.videoOmitted ? '전환 영상 없음' : '전환 영상 제작 중') + '</span>'; }   // 영상 없는 케이스(이미지 먼저 게시·의도적 제외, 2026-09-11)
   resetZooms();
@@ -8340,7 +8343,7 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     document.querySelectorAll('#grid .card').forEach(card => {
       const nm = card.querySelector('.nm'); if(!nm) return;
       const c = CASES.find(x => x.name === nm.textContent); if(!c) return;
-      if(!c.video && !card.querySelector('.stage')){ const b = document.createElement('span'); b.className = 'stage'; b.textContent = c.videoOmitted ? '전환 영상 없음' : '영상 제작 중 · 이미지 먼저'; card.appendChild(b); }
+      if(!c.video && !card.querySelector('.stage')){ const b = document.createElement('span'); b.className = 'stage'; b.textContent = c.videoOmitted ? (c.bestOmitted ? '전환 영상·추천 스타일 없음' : '전환 영상 없음') : '영상 제작 중 · 이미지 먼저'; card.appendChild(b); }
       const lb = codeLabel(c.name); if(lb !== c.name && !nm.dataset.code){ nm.dataset.code = c.name; nm.textContent = lb; }
     });
   };
@@ -8409,7 +8412,8 @@ body:has(#viewer.on) #ops-chip{z-index:5}
     const vn = $('vname'); if(vn) vn.textContent = codeLabel(c.name);
     exitNote(); VIEW = 'video'; CURP = null;
     showVideoLoading(c);
-    if(!c.video){
+    if(!c.video && c.bestOmitted && c.presets && c.presets.length){ vv.pause(); vv.removeAttribute('src'); vv.style.display = 'none'; selPreset(0); }   // 추천 스타일 슬롯 제외(2026-09-11)
+    else if(!c.video){
       vv.pause(); vv.removeAttribute('src'); vv.style.display = 'none';
       vpImg.src = c.thumb; vpImg.style.display = ''; albl.innerHTML = 'AFTER · <b>베스트 이미지</b> <span style="opacity:.6">· ' + (c.videoOmitted ? '전환 영상 없음' : '전환 영상 제작 중') + '</span>';
     }
@@ -8525,7 +8529,7 @@ body:has(#viewer.on) #ops-chip{z-index:5}
   function syncZoom(){ try{ const ref = zooms.find(z => z.media === vpImg) || zooms[0]; if(!ref) return; zooms.forEach(z => { if(!afterhalf.contains(z.media)) return; z.Z.s = ref.Z.s; z.Z.x = ref.Z.x; z.Z.y = ref.Z.y; z.media.style.transform = ref.Z.s === 1 ? '' : `translate(${ref.Z.x}px,${ref.Z.y}px) scale(${ref.Z.s})`; }); }catch(e){} }
   function keepZoom(fn){ let saved = null; try{ saved = zooms.map(z => ({s:z.Z.s, x:z.Z.x, y:z.Z.y})); }catch(e){} fn(); if(saved){ try{ zooms.forEach((z, i) => { Object.assign(z.Z, saved[i]); z.media.style.transform = saved[i].s === 1 ? '' : `translate(${saved[i].x}px,${saved[i].y}px) scale(${saved[i].s})`; }); }catch(e){} } }
   const _sp = selPreset; selPreset = function(i){ exitNote(); keepZoom(() => _sp(i)); VIEW = CUR && CUR.presets ? CUR.presets[i].id : 'preset'; };
-  const _sb = selBest;   selBest   = function(){ exitNote(); _sb(); VIEW = 'video'; CURP = null; };
+  const _sb = selBest;   selBest   = function(){ if(CUR && CUR.bestOmitted && CUR.presets && CUR.presets.length){ selPreset(0); return; } exitNote(); _sb(); VIEW = 'video'; CURP = null; };
 
   /* ── 4. 노트·그리기 (애프터 영역 위 캔버스, 정규화 좌표 저장) ── */
   let VIEW = 'video', NOTE = false, COLOR = '#F15F27', WIDTH = 4, ERASE = false, drawing = false, cur = null;

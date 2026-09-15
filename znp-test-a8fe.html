@@ -339,6 +339,25 @@ const CASES = [
     0.4713
    ]
   ],
+  "comboPoly": [
+   [
+    0.4522,
+    0.45
+   ],
+   [
+    0.5989,
+    0.45
+   ],
+   [
+    0.5989,
+    0.5058
+   ],
+   [
+    0.4522,
+    0.5058
+   ]
+  ],
+  "comboBlur": 0.004,
   "presets": [
    {
     "id": "P1",
@@ -9176,9 +9195,10 @@ body:has(#viewer.on) #ops-chip{z-index:5}
   /* ── 2. 셰이드 슬라이더: 합성 캔버스의 마스크 영역만 명도·웜톤 보정 ── */
   let CURP = null, CURSHADE = null;
   const _dc = drawComposite;
+  function comboCase(c, p){ return (p && p.key && c.comboPoly) ? Object.assign({}, c, {maskPoly: c.comboPoly, maskBlur: c.comboBlur || c.maskBlur}) : c; }   // 조합(key 있음)은 이미 합성본 → 하악까지 든 넓은 창 comboPoly 로 (2026-09-15). 프리셋은 종전 치아 창 그대로
   drawComposite = function(c, p, done){
-    CURP = p;
-    _dc(c, p, ok => { if(ok) applyShade(c); done(ok); });
+    CURP = p; const cc = comboCase(c, p);
+    _dc(cc, p, ok => { if(ok) applyShade(cc); done(ok); });
   };
   /* 셰이드 마스크 = 폴리곤 안에서 "치아 픽셀"만 (밝고 채도 낮음). 폴리곤 전체(입술·잇몸 포함)에 얹지 않는다.
      CDN이 CORS를 허용해 픽셀 읽기가 되며, 실패 시 폴리곤으로 폴백. 이미지별 캐시. */

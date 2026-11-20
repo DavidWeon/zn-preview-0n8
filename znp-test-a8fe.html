@@ -307,38 +307,57 @@ const CASES = [
   "maskBlur": 0.0045,
   "maskPoly": [
    [
-    0.4461,
-    0.4929
+    0.4306,
+    0.4917
    ],
    [
-    0.5567,
-    0.4929
+    0.575,
+    0.4917
    ],
    [
-    0.5672,
-    0.4988
+    0.5844,
+    0.4958
    ],
    [
-    0.5672,
-    0.5112
+    0.5844,
+    0.5025
    ],
    [
-    0.5567,
-    0.5175
+    0.5611,
+    0.5183
    ],
    [
-    0.4461,
-    0.5175
+    0.4417,
+    0.5183
    ],
    [
-    0.4361,
-    0.5112
+    0.4183,
+    0.5025
    ],
    [
-    0.4361,
-    0.4988
+    0.4183,
+    0.4958
    ]
   ],
+  "comboPoly": [
+   [
+    0.4,
+    0.4821
+   ],
+   [
+    0.5978,
+    0.4821
+   ],
+   [
+    0.5978,
+    0.5317
+   ],
+   [
+    0.4,
+    0.5317
+   ]
+  ],
+  "comboBlur": 0.004,
   "presets": [
    {
     "id": "P1",
@@ -30052,7 +30071,7 @@ const q = document.getElementById('q');
 
 document.getElementById('n-case').textContent = CASES.length;
 document.getElementById('n-celeb').textContent = CELEBS.length || '준비 중';
-document.getElementById('cnt').textContent = `완성 ${CASES.length}건 · 갱신 2026-11-19`;
+document.getElementById('cnt').textContent = `완성 ${CASES.length}건 · 갱신 2026-11-20`;
 
 function setTab(t){
   TAB = t;
